@@ -5,6 +5,8 @@
 #include "renderer.h"
 #include "TickableObject.h"
 #include <functional>
+#include <vector>
+#include "ExplosionCell.h"
 
 class Bomb : public TickableObject
 {
@@ -15,6 +17,8 @@ public:
 
     virtual void tick(float deltaTime) override;
     void print(SDL_Point const& position) const;
+    void detonate();
+    bool isExploding() const { return exploding; }
 
 private:
     std::function<void()> onExplodes;
@@ -22,7 +26,13 @@ private:
     float lifeTime = 2.f;
     float animTime = 0.2f;
     int animIndex = 0;
+    int range = 3;
     bool animDirection = true;
+    std::vector<ExplosionCell> explodingArea;
+    int exploIndex = 0;
+    float exploTime = 0.1f;
+    bool exploding = false;
+    bool exploReverseAnim = false;
     
     void explodes();
 };

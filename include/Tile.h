@@ -18,6 +18,7 @@ struct STile
     ETileType tileType;
     SDL_Rect hitBox;
     Bomb* bomb = nullptr;
+    bool breaking = false;
 
     STile(int x, int y, ETileType inTileType);
     STile() {}

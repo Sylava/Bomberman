@@ -18,6 +18,16 @@ Board::Board(int width, int height)
     bombTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {0, 0, 48, 16}));
     backgroundTex = ImageLoader::loadImage(renderer, "images/Background.bmp", {0, 0, 240, 160});
     blockTex = ImageLoader::loadImage(renderer, "images/Background.bmp", {495, 335, 16, 16});
+    destroyedBlockTex = ImageLoader::loadImage(renderer, "images/standard_map.bmp", {16, 160, 80, 16});
+    explosionCenterTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {0, 16, 64, 16}));
+    explosionDownTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {0, 32, 64, 16}));
+    explosionEndDownTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {64, 32, 64, 16}));
+    explosionUpTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {0, 48, 64, 16}));
+    explosionEndUpTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {64, 48, 64, 16}));
+    explosionLeftTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {0, 64, 64, 16}));
+    explosionEndLeftTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {64, 64, 64, 16}));
+    explosionRightTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {0, 80, 64, 16}));
+    explosionEndRightTex = (ImageLoader::loadImage(renderer, "images/Items.bmp", {64, 80, 64, 16}));
 }
 
 Board::~Board()
@@ -99,7 +109,7 @@ void Board::Print() const
     {
         for(int x = 0; x < 13; ++x)
         {
-            if(tiles[y][x].tileType == ETileType::BREAKABLE)
+            if(tiles[y][x].tileType == ETileType::BREAKABLE && tiles[y][x].breaking == false)
             {
                 SDL_Rect dst = {tiles[y][x].position.x * 16 + 16, tiles[y][x].position.y * 16 + 8, 16, 16};
                 SDL_RenderCopy(renderer->Get(), blockTex, NULL, &dst);
@@ -167,6 +177,112 @@ void Board::removeBomb(Bomb* bomb)
     auto pos = std::find(bombs.begin(), bombs.end(), bomb);
     bombs.erase(pos);
     delete bomb;
+}
+
+void Board::getExplodingArea(std::vector<ExplosionCell>& explodingArea, int range, SDL_Point& position)
+{
+    STile* centerTile = &tiles[position.y][position.x];
+    explodingArea.push_back({centerTile, explosionCenterTex});
+
+    STile* checkDownTile = centerTile->GetDown();
+    STile* checkUpTile = centerTile->GetUp();
+    STile* checkLeftTile = centerTile->GetLeft();
+    STile* checkRightTile = centerTile->GetRight();
+    // on vérifie les cases de tous les côtés
+    for(int i = 0; i < range; ++i)
+    {
+        if(checkDownTile != nullptr && checkDownTile->tileType == ETileType::EMPTY)
+        {
+            if(!checkDownTile->bomb)
+            {
+                if(i < range - 1)
+                    explodingArea.push_back({checkDownTile, explosionDownTex});
+                else
+                    explodingArea.push_back({checkDownTile, explosionEndDownTex});
+                checkDownTile = checkDownTile->GetDown();
+            }
+            else
+            {
+                if(!checkDownTile->bomb->isExploding())
+                    checkDownTile->bomb->detonate();
+                checkDownTile = nullptr;
+            }
+        }
+        else if(checkDownTile != nullptr && checkDownTile->tileType == ETileType::BREAKABLE)
+        {
+            breakingBlocks.push_back(checkDownTile);
+            checkDownTile = nullptr;
+        }
+
+        if(checkUpTile != nullptr && checkUpTile->tileType == ETileType::EMPTY)
+        {
+            if(!checkUpTile->bomb)
+            {
+                if(i < range - 1)
+                    explodingArea.push_back({checkUpTile, explosionUpTex});
+                else
+                    explodingArea.push_back({checkUpTile, explosionEndUpTex});
+                checkUpTile = checkUpTile->GetUp();
+            }
+            else
+            {
+                if(!checkUpTile->bomb->isExploding())
+                    checkUpTile->bomb->detonate();
+                checkUpTile = nullptr;
+            }
+        }
+        else if(checkUpTile != nullptr && checkUpTile->tileType == ETileType::BREAKABLE)
+        {
+            breakingBlocks.push_back(checkUpTile);
+            checkUpTile = nullptr;
+        }
+
+        if(checkLeftTile != nullptr && checkLeftTile->tileType == ETileType::EMPTY)
+        {
+            if(!checkLeftTile->bomb)
+            {
+                if(i < range - 1)
+                    explodingArea.push_back({checkLeftTile, explosionLeftTex});
+                else
+                    explodingArea.push_back({checkLeftTile, explosionEndLeftTex});
+                checkLeftTile = checkLeftTile->GetLeft();
+            }
+            else
+            {
+                if(!checkLeftTile->bomb->isExploding())
+                    checkLeftTile->bomb->detonate();
+                checkLeftTile = nullptr;
+            }
+        }
+        else if(checkLeftTile != nullptr && checkLeftTile->tileType == ETileType::BREAKABLE)
+        {
+            breakingBlocks.push_back(checkLeftTile);
+            checkLeftTile = nullptr;
+        }
+
+        if(checkRightTile != nullptr && checkRightTile->tileType == ETileType::EMPTY)
+        {
+            if(!checkRightTile->bomb)
+            {
+                if(i < range - 1)
+                    explodingArea.push_back({checkRightTile, explosionRightTex});
+                else
+                    explodingArea.push_back({checkRightTile, explosionEndRightTex});
+                checkRightTile = checkRightTile->GetRight();
+            }
+            else
+            {
+                if(!checkRightTile->bomb->isExploding())
+                    checkRightTile->bomb->detonate();
+                checkRightTile = nullptr;
+            }
+        }
+        else if(checkRightTile != nullptr && checkRightTile->tileType == ETileType::BREAKABLE)
+        {
+            breakingBlocks.push_back(checkRightTile);
+            checkRightTile = nullptr;
+        }
+    }
 }
 
 STile* Board::GetRight(STile const& tile)

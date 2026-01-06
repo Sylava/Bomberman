@@ -8,6 +8,7 @@
 #include "Math/Vector2D.h"
 #include "bomb.h"
 #include "player.h"
+#include "ExplosionCell.h"
 
 class Board
 {
@@ -24,6 +25,7 @@ public:
     STile& getTileAtPosition(Vector2D const& position) const;
     bool spawnBomb(Player& player);
     void removeBomb(Bomb* bomb);
+    void getExplodingArea(std::vector<ExplosionCell>& explodingArea, int range, SDL_Point& position);
 
     void Print() const;
 
@@ -31,9 +33,20 @@ private:
     SDL_Texture* bombTex;
     SDL_Texture* backgroundTex;
     SDL_Texture* blockTex;
+    SDL_Texture* destroyedBlockTex;
+    SDL_Texture* explosionCenterTex;
+    SDL_Texture* explosionDownTex;
+    SDL_Texture* explosionEndDownTex;
+    SDL_Texture* explosionUpTex;
+    SDL_Texture* explosionEndUpTex;
+    SDL_Texture* explosionLeftTex;
+    SDL_Texture* explosionEndLeftTex;
+    SDL_Texture* explosionRightTex;
+    SDL_Texture* explosionEndRightTex;
     STile** tiles;
     int width, height;
     std::vector<Bomb*> bombs;
+    std::vector<STile*> breakingBlocks;
 
     void CreateBoard();
     void DestroyBoard();
