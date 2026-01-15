@@ -9,20 +9,22 @@
 #include "bomb.h"
 #include "player.h"
 #include "ExplosionCell.h"
+#include "TickableObject.h"
 
-class Board
+class Board : public TickableObject
 {
 public:
     Board(int width, int height);
     ~Board();
 
+    virtual void tick(float deltaTime) override;
+    STile& getTileAtPosition(Vector2D const& position) const;
     STile* GetRight(STile const& tile);
     STile* GetLeft(STile const& tile);
     STile* GetUp(STile const& tile);
     STile* GetDown(STile const& tile);
     Vector2D clampPosition(Vector2D const& position) const;
     bool doesPlayerCollides(Vector2D const& position) const;
-    STile& getTileAtPosition(Vector2D const& position) const;
     bool spawnBomb(Player& player);
     void removeBomb(Bomb* bomb);
     void getExplodingArea(std::vector<ExplosionCell>& explodingArea, int range, SDL_Point& position);

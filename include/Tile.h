@@ -19,6 +19,8 @@ struct STile
     SDL_Rect hitBox;
     Bomb* bomb = nullptr;
     bool breaking = false;
+    float breakingTime = 0.1f;
+    int breakingAnim = 0;
 
     STile(int x, int y, ETileType inTileType);
     STile() {}

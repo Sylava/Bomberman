@@ -75,6 +75,26 @@ void Board::DestroyBoard()
     delete[] tiles;
 }
 
+void Board::tick(float deltaTime)
+{
+    for(STile* tile : breakingBlocks)
+    {
+        tile->breakingTime -= deltaTime;
+        if(tile->breakingTime <= 0)
+        {
+            tile->breakingAnim += 1;
+            tile->breakingTime = 0.1f;
+            if(tile->breakingAnim >= 5)
+            {
+                tile->breaking = false;
+                tile->tileType = ETileType::EMPTY;
+                auto pos = std::find(breakingBlocks.begin(), breakingBlocks.end(), tile);
+                breakingBlocks.erase(pos);
+            }
+        }
+    }
+}
+
 STile& Board::getTileAtPosition(Vector2D const& position) const
 {
     int ix = std::round(position.x + 8.f);
@@ -109,10 +129,18 @@ void Board::Print() const
     {
         for(int x = 0; x < 13; ++x)
         {
-            if(tiles[y][x].tileType == ETileType::BREAKABLE && tiles[y][x].breaking == false)
+            if(tiles[y][x].tileType == ETileType::BREAKABLE)
             {
                 SDL_Rect dst = {tiles[y][x].position.x * 16 + 16, tiles[y][x].position.y * 16 + 8, 16, 16};
-                SDL_RenderCopy(renderer->Get(), blockTex, NULL, &dst);
+                if(tiles[y][x].breaking == false)
+                {
+                    SDL_RenderCopy(renderer->Get(), blockTex, NULL, &dst);
+                }
+                else
+                {
+                    SDL_Rect src = {tiles[y][x].breakingAnim * 16, 0, 16, 16};
+                    SDL_RenderCopy(renderer->Get(), destroyedBlockTex, &src, &dst);
+                }
             }
             else if(tiles[y][x].bomb != nullptr)
             {
@@ -210,6 +238,7 @@ void Board::getExplodingArea(std::vector<ExplosionCell>& explodingArea, int rang
         }
         else if(checkDownTile != nullptr && checkDownTile->tileType == ETileType::BREAKABLE)
         {
+            checkDownTile->breaking = true;
             breakingBlocks.push_back(checkDownTile);
             checkDownTile = nullptr;
         }
@@ -233,6 +262,7 @@ void Board::getExplodingArea(std::vector<ExplosionCell>& explodingArea, int rang
         }
         else if(checkUpTile != nullptr && checkUpTile->tileType == ETileType::BREAKABLE)
         {
+            checkUpTile->breaking = true;
             breakingBlocks.push_back(checkUpTile);
             checkUpTile = nullptr;
         }
@@ -256,6 +286,7 @@ void Board::getExplodingArea(std::vector<ExplosionCell>& explodingArea, int rang
         }
         else if(checkLeftTile != nullptr && checkLeftTile->tileType == ETileType::BREAKABLE)
         {
+            checkLeftTile->breaking = true;
             breakingBlocks.push_back(checkLeftTile);
             checkLeftTile = nullptr;
         }
@@ -279,6 +310,7 @@ void Board::getExplodingArea(std::vector<ExplosionCell>& explodingArea, int rang
         }
         else if(checkRightTile != nullptr && checkRightTile->tileType == ETileType::BREAKABLE)
         {
+            checkRightTile->breaking = true;
             breakingBlocks.push_back(checkRightTile);
             checkRightTile = nullptr;
         }
