@@ -10,6 +10,7 @@
 #include "player.h"
 #include "ExplosionCell.h"
 #include "TickableObject.h"
+#include "Bonus.h"
 
 class Board : public TickableObject
 {
@@ -27,6 +28,7 @@ public:
     bool doesPlayerCollides(Vector2D const& position) const;
     bool spawnBomb(Player& player);
     void removeBomb(Bomb* bomb);
+    void removeBonus(Bonus* bonus);
     void getExplodingArea(std::vector<ExplosionCell>& explodingArea, int range, SDL_Point& position);
 
     void Print() const;
@@ -45,13 +47,16 @@ private:
     SDL_Texture* explosionEndLeftTex;
     SDL_Texture* explosionRightTex;
     SDL_Texture* explosionEndRightTex;
+    SDL_Texture* bonusTex;
     STile** tiles;
     int width, height;
     std::vector<Bomb*> bombs;
     std::vector<STile*> breakingBlocks;
+    std::vector<Bonus*> bonusList;
 
     void CreateBoard();
     void DestroyBoard();
     bool IsPilarTile(int x, int y);
     bool IsCorner(int x, int y, const std::array<SDL_Point, 12>& tab);
+    void spawnBonus(SDL_Point& position);
 };

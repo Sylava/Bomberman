@@ -56,9 +56,9 @@ void Bomberman::run()
         lastTick = totalTime;
 
         input->update();
-        for(auto tickableObject : tickableObjects)
+        for(int i = tickableObjects.size() - 1; i >= 0; --i)
         {
-            tickableObject->tick(deltaTime);
+            tickableObjects[i]->tick(deltaTime);
         }
         renderer->Clear();
         board->Print();

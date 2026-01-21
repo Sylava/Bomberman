@@ -103,10 +103,22 @@ void Player::manageMovements(float deltaTime)
     SDL_Rect playerHitbox = {0, 0, 16, 16};
     playerHitbox.x = std::floor(position.x + 16);
     playerHitbox.y = std::floor(position.y + 8);
-    if(tileToTest == nullptr || (tileToTest->tileType == ETileType::EMPTY && tileToTest->bomb == nullptr) || !SDL_HasIntersection(&playerHitbox, &tileToTest->hitBox))
+    if(tileToTest == nullptr || ((tileToTest->tileType == ETileType::EMPTY || tileToTest->tileType == ETileType::BONUS) && tileToTest->bomb == nullptr) || !SDL_HasIntersection(&playerHitbox, &tileToTest->hitBox))
     {
         position = newPosition;
         velocity = newPosition - oldPosition;
+        if(tileToTest != nullptr && tileToTest->tileType == ETileType::BONUS && SDL_HasIntersection(&tileToTest->hitBox, &playerHitbox))
+        {
+            printf("if null\n");
+            if(tileToTest->bonus != nullptr)
+            {
+                printf("appel remove\n");
+                applyBonus(tileToTest->bonus->type);
+                board->removeBonus(tileToTest->bonus);
+            }
+            else
+                printf("bonus null\n");
+        }
     }
 }
 
@@ -182,6 +194,24 @@ void Player::roundPosition(Vector2D& position) const
         position.x = std::roundf(position.x / 16.f) * 16.f;
     if(fmod(position.y, 16) < eps || fmod(position.y, 16) > 16.f - eps)
         position.y = std::roundf(position.y / 16.f) * 16.f;
+}
+
+void Player::applyBonus(EBonusType& type)
+{
+    switch (type)
+    {
+        case EBonusType::BOMBUP:
+            maxBomb += 1;
+            break;
+        case EBonusType::POWERUP:
+            power += 1;
+            break;
+        case EBonusType::SPEEDUP:
+            speed += 6;
+            break;
+        case EBonusType::MALUS:
+            break;
+    }
 }
 
 void Player::Print() const

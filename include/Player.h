@@ -5,6 +5,7 @@
 #include <vector>
 #include "Tile.h"
 #include "TickableObject.h"
+#include "Bonus.h"
 
 class Player : public TickableObject
 {
@@ -14,7 +15,8 @@ public:
 
     // position du joueur sur l'écran (en pixel) sans son offset
     Vector2D position;
-    SDL_Rect  hitBox = {0, 0, 16, 16};
+    SDL_Rect hitBox = {0, 0, 16, 16};
+    int power = 2;
 
     void giveBomb();
     virtual void tick(float deltaTime) override;
@@ -36,4 +38,5 @@ private:
     Vector2D goLeft(float delta, float eps, float mody);
     Vector2D goRight(float delta, float eps, float mody);
     void roundPosition(Vector2D& position) const;
+    void applyBonus(EBonusType& type);
 };

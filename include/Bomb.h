@@ -13,20 +13,20 @@ class Bomb : public TickableObject
 public:
     SDL_Point position;
 
-    Bomb(SDL_Texture* inBombTex, SDL_Point const& inPosition, std::function<void()> inOnExplodes);
+    Bomb(SDL_Texture* inBombTex, SDL_Point const& inPosition, int power, std::function<void()> inOnExplodes);
 
     virtual void tick(float deltaTime) override;
     void print(SDL_Point const& position) const;
-    void detonate();
+    void explodes();
     bool isExploding() const { return exploding; }
 
 private:
     std::function<void()> onExplodes;
     SDL_Texture* bombTex;
     float lifeTime = 2.f;
-    float animTime = 0.2f;
+    float animTime = 0.15f;
     int animIndex = 0;
-    int range = 3;
+    int range = 1;
     bool animDirection = true;
     std::vector<ExplosionCell> explodingArea;
     int exploIndex = 0;
@@ -34,5 +34,5 @@ private:
     bool exploding = false;
     bool exploReverseAnim = false;
     
-    void explodes();
+    void destroyBomb();
 };

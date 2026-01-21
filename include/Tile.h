@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include "Bomb.h"
+#include "bonus.h"
 
 class Bomb;
 
@@ -10,6 +11,7 @@ enum class ETileType
     EMPTY,
     BREAKABLE,
     PILAR,
+    BONUS,
 };
 
 struct STile
@@ -18,6 +20,7 @@ struct STile
     ETileType tileType;
     SDL_Rect hitBox;
     Bomb* bomb = nullptr;
+    Bonus* bonus = nullptr;
     bool breaking = false;
     float breakingTime = 0.1f;
     int breakingAnim = 0;

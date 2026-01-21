@@ -5,11 +5,12 @@
 #include "Math/Vector2D.h"
 #include <iostream>
 
-Bomb::Bomb(SDL_Texture* inBombTex, SDL_Point const& inPosition, std::function<void()> inOnExplodes) : TickableObject()
+Bomb::Bomb(SDL_Texture* inBombTex, SDL_Point const& inPosition, int power, std::function<void()> inOnExplodes) : TickableObject()
 {
     bombTex = inBombTex;
     position = inPosition;
     onExplodes = inOnExplodes;
+    range = 1 + power;
 }
 
 void Bomb::tick(float deltaTime)
@@ -17,7 +18,7 @@ void Bomb::tick(float deltaTime)
     animTime -= deltaTime;
     if(animTime <= 0)
     {
-        animTime = 0.2f;
+        animTime = 0.15f;
         if(animDirection)
         {
             if(animIndex == 2)
@@ -49,21 +50,21 @@ void Bomb::tick(float deltaTime)
     }
     lifeTime -= deltaTime;
     if(lifeTime <= 0 && !exploding)
-        detonate();
-    if(exploReverseAnim && exploIndex < 0)
         explodes();
-}
-
-void Bomb::detonate()
-{
-    exploding = true;
-    Board* board = Bomberman::getBoard();
-    board->getExplodingArea(explodingArea, range, position);
+    if(exploReverseAnim && exploIndex < 0)
+        destroyBomb();
 }
 
 void Bomb::explodes()
 {
+    exploding = true;
     onExplodes();
+    Board* board = Bomberman::getBoard();
+    board->getExplodingArea(explodingArea, range, position);
+}
+
+void Bomb::destroyBomb()
+{
     Board* board = Bomberman::getBoard();
     board->removeBomb(this);
 }
