@@ -1,0 +1,35 @@
+#pragma once
+
+#include <SDL2/SDL.h>
+#include "Bomb.h"
+#include "bonus.h"
+
+class Bomb;
+
+enum class ETileType
+{
+    EMPTY,
+    BREAKABLE,
+    PILAR,
+    BONUS,
+};
+
+struct STile
+{
+    SDL_Point position;
+    ETileType tileType;
+    SDL_Rect hitBox;
+    Bomb* bomb = nullptr;
+    Bonus* bonus = nullptr;
+    bool breaking = false;
+    float breakingTime = 0.1f;
+    int breakingAnim = 0;
+
+    STile(int x, int y, ETileType inTileType);
+    STile() {}
+
+    STile* GetRight() const;
+    STile* GetLeft() const;
+    STile* GetUp() const;
+    STile* GetDown() const;
+};
